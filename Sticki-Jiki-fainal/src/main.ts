@@ -1,54 +1,52 @@
 import axios from "axios";
-import apiBaseUrl from "./API/apiConfig";
-import { Note, ApiResponse } from "./types/interfaces";
+import baseUrl from "./API/apiConfig";
+import { Note } from "./types/interfaces";
 
-// Välj knappen som används för att visa anteckningar
-const showNoteBtn = document.querySelector(".form__btnShowNote") as HTMLElement;
-let currentUser: string = "";
+// Select the button used to show notes
+const showNotesButton = document.querySelector(".form__btnShowNote") as HTMLElement;
+let currentUser = "";
 
-// Funktion för att hantera att skicka in en anteckning
-async function postNote() {
+// Function to handle posting a note
+async function postNewNote() {
   const titleInput = document.querySelector(".form__title") as HTMLInputElement;
   const noteInput = document.querySelector(".form__note") as HTMLInputElement;
   const userInput = document.querySelector(".form__user") as HTMLInputElement;
-  const submitBtn = document.querySelector(".form__btn") as HTMLElement;
+  const submitButton = document.querySelector(".form__btn") as HTMLElement;
 
-  submitBtn.addEventListener("click", async (e) => {
+  submitButton.addEventListener("click", async (e) => {
     e.preventDefault();
 
-    const note = {
+    const newNote = {
       username: userInput.value,
       title: titleInput.value,
       note: noteInput.value,
     } as Note;
 
     try {
-      await axios.post(`${apiBaseUrl}/api/notes`, note, {
+      await axios.post(`${baseUrl}/api/notes`, newNote, {
         headers: {
           "Content-Type": "application/json",
         },
       });
 
-      // Hämta och visa anteckningar omedelbart efter att ha lagt till en ny anteckning
-      getNotes(note.username);
+      // Immediately fetch and display notes after adding a new note
+      getNotes(newNote.username);
     } catch (error) {
-      console.error("Misslyckades med att posta anteckning:", error);
+      console.error("Failed to post note:", error);
     }
   });
 
-  console.log(currentUser);
-
-  // Händelselyssnare för att visa anteckningar
-  showNoteBtn.addEventListener("click", (e) => {
+  // Event listener to show notes
+  showNotesButton.addEventListener("click", (e) => {
     e.preventDefault();
-    // Hämta och visa anteckningar omedelbart när knappen klickas på
+    // Fetch and display notes immediately when the button is clicked
     getNotes(userInput.value);
   });
 }
 
-// Funktion för att hämta anteckningar från API:et
-async function getNotes(username: string): Promise<ApiResponse> {
-  const url = `${apiBaseUrl}/api/notes/${username}`;
+// Function to fetch notes from the API
+async function getNotes(username: string) {
+  const url = `${baseUrl}/api/notes/${username}`;
 
   try {
     const response = await axios.get(url, {
@@ -56,56 +54,47 @@ async function getNotes(username: string): Promise<ApiResponse> {
         "Content-Type": "application/json",
       },
     });
-    const notes: Note[] = response.data.notes;
+    const notesList: Note[] = response.data.notes;
 
-    displayNotes(notes);
+    // Display notes on the page or do something with them
+    displayUserNotes(notesList);
 
     currentUser = username;
-
-    // Returnera en ApiResponse även om du inte använder den här
-    return {
-      success: true,
-      notes: notes,
-    };
   } catch (error) {
     console.log(error);
-
-    // Returnera en ApiResponse även om du inte använder den här
-    return {
-      success: false,
-      notes: [], // eller en tom array beroende på ditt behov
-    };
   }
 }
 
-// Funktion för att visa anteckningar på sidan
-function displayNotes(notes: Note[]) {
-  const notesArticle = document.querySelector(".notes-article") as HTMLElement;
+console.log(currentUser);
 
-  // Rensa befintliga anteckningar
-  notesArticle.innerHTML = "";
+// Function to display notes on the page
+function displayUserNotes(notesList: Note[]) {
+  const notesSection = document.querySelector(".notes-article") as HTMLElement;
 
-  notes.forEach((note) => {
-    const newNoteArticle = document.createElement("article");
+  // Clear existing notes
+  notesSection.innerHTML = "";
 
-    newNoteArticle.setAttribute("note-id", note.id);
-    newNoteArticle.setAttribute("note-title", note.title);
-    newNoteArticle.setAttribute("note-note", note.note);
-    newNoteArticle.setAttribute("note-username", note.username);
-    newNoteArticle.innerHTML = `<h2 class="name">${note.username}</h2>
+  notesList.forEach((note) => {
+    const newNoteElement = document.createElement("article");
+
+    newNoteElement.setAttribute("note-id", note.id);
+    newNoteElement.setAttribute("note-title", note.title);
+    newNoteElement.setAttribute("note-note", note.note);
+    newNoteElement.setAttribute("note-username", note.username);
+    newNoteElement.innerHTML = `<h2 class="name">${note.username}</h2>
             <h3 class="title">${note.title}</h3>
             <p class="text">${note.note}</p>            
             <button class="deleteBtn Btn">Delete Note</button>
             <button class="updateBtn Btn">Update Note</button>`;
 
-    notesArticle.appendChild(newNoteArticle);
+    notesSection.appendChild(newNoteElement);
   });
 
   document.querySelectorAll(".deleteBtn").forEach((deleteButton) => {
     deleteButton.addEventListener("click", () => {
       const parentNode = deleteButton.parentNode as HTMLElement;
       const noteID = parentNode?.getAttribute("note-id");
-      deleteNote(noteID);
+      deleteNoteById(noteID);
       parentNode?.remove();
     });
   });
@@ -125,27 +114,27 @@ function displayNotes(notes: Note[]) {
         id: noteID,
       } as Note;
 
-      // Anropa updateNote-funktionen med antecknings-ID
-      updateNote(updatedNote);
+      // Call the updateNote function with the note ID
+      updateNoteContent(updatedNote);
     });
   });
 }
 
-// Funktion för att uppdatera en anteckning
-async function updateNote(data: Note | null) {
+// Function to update a note
+async function updateNoteContent(data: Note | null) {
   if (!data) {
-    console.error("Saknar parametrar för att uppdatera anteckning.");
+    console.error("Missing parameters for updating note.");
     return;
   }
 
   try {
-    // Be användaren att ange den uppdaterade anteckningen
-    const updatedNote = prompt("Ange uppdaterad anteckning:", data.note);
+    // Prompt the user to enter the updated note
+    const updatedNote = prompt("Enter updated note:", data.note);
 
     if (updatedNote !== null) {
-      // Skicka PUT-begäran med det uppdaterade innehållet
+      // Send PUT request with the updated content
       await axios.put(
-        `${apiBaseUrl}/api/notes/${data.id}`,
+        `${baseUrl}/api/notes/${data.id}`,
         { note: updatedNote },
         {
           headers: {
@@ -154,7 +143,7 @@ async function updateNote(data: Note | null) {
         }
       );
 
-      // Hämta och visa uppdaterade anteckningar efter ändringar i API:et
+      // Fetch and display updated notes after changes in the API
       getNotes(data.username);
     }
   } catch (error) {
@@ -162,9 +151,9 @@ async function updateNote(data: Note | null) {
   }
 }
 
-// Funktion för att ta bort en anteckning
-async function deleteNote(id: string | null) {
-  const URL = `${apiBaseUrl}/api/notes/${id}`;
+// Function to delete a note by ID
+async function deleteNoteById(id: string | null) {
+  const URL = `${baseUrl}/api/notes/${id}`;
   try {
     await axios.delete(URL, {
       headers: {
@@ -176,5 +165,5 @@ async function deleteNote(id: string | null) {
   }
 }
 
-// Anropa postNote för att starta applikationen
-postNote();
+// Call postNewNote to start application
+postNewNote();
