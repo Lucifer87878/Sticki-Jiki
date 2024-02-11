@@ -1,0 +1,17 @@
+.notes-article {
+    background-color: $form-background;
+    padding: 15px;
+    border: 1px solid $form-border;
+    border-radius: 35px;
+    text-align: center;
+  
+    h2 {
+      color: $user-titel-text;
+      margin-bottom: 10px;
+      text-decoration: underline;
+    }
+  
+    .user-notes {
+      color: rgb(185, 111, 111);
+    }
+  }
