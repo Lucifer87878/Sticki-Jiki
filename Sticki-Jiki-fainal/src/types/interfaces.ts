@@ -11,5 +11,10 @@ export interface ApiResponse {
     notes: Note[];
 }
 
+export interface ApiError {
+    message: string;
+    status: number;
+  }
+
 
 

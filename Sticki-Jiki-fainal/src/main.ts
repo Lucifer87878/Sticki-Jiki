@@ -1,6 +1,6 @@
 import axios from "axios";
 import baseUrl from "./API/apiConfig";
-import { Note } from "./types/interfaces";
+import { Note, ApiResponse, ApiError } from "./types/interfaces";
 
 // Select the button used to show notes
 const showNotesButton = document.querySelector(".form__btnShowNote") as HTMLElement;
@@ -49,17 +49,16 @@ async function getNotes(username: string) {
   const url = `${baseUrl}/api/notes/${username}`;
 
   try {
-    const response = await axios.get(url, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const notesList: Note[] = response.data.notes;
+    const response = await axios.get<ApiResponse | ApiError>(url);
 
-    // Display notes on the page or do something with them
-    displayUserNotes(notesList);
-
-    currentUser = username;
+    if ('notes' in response.data) {
+      const notes: Note[] = response.data.notes;
+      displayUserNotes(notes);
+    } else {
+      console.error('Failed to get notes:', response.data.message);
+    }
+    
+    // user = username;
   } catch (error) {
     console.log(error);
   }
