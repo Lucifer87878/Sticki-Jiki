@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import baseUrl from "./API/apiConfig";
 import { Note } from "./types/interfaces";
 
@@ -45,23 +45,26 @@ async function postNewNote() {
 }
 
 // Function to fetch notes from the API
-async function getNotes(username: string) {
+async function getNotes<T>(username: string): Promise<T[]> {
   const url = `${baseUrl}/api/notes/${username}`;
 
   try {
-    const response = await axios.get(url, {
+    const response: AxiosResponse<{ notes: T[] }> = await axios.get(url, {
       headers: {
         "Content-Type": "application/json",
       },
     });
-    const notesList: Note[] = response.data.notes;
+    const notesList: T[] = response.data.notes;
 
     // Display notes on the page or do something with them
     displayUserNotes(notesList);
 
     currentUser = username;
+
+    return notesList;
   } catch (error) {
     console.log(error);
+    return [];
   }
 }
 

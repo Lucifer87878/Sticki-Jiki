@@ -1,9 +1,40 @@
 .notes-article {
-    background-color: $form-background;
-    padding: 15px;
-    border: 1px solid $form-border;
-    border-radius: 35px;
-    text-align: center;
+  background-color: $form-background;
+  padding: 15px;
+  border: 1px solid $form-border;
+  border-radius: 35px;
+  text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around; /* Justera detta baserat på dina önskemål för avstånd mellan "cards" */
+
+  article {
+      flex: 0 0 45%; /* Justera bredden på varje "card" baserat på dina önskemål */
+      background-color: $card-background;
+      margin: 10px;
+      padding: 15px;
+      border: 1px solid $card-border;
+      border-radius: 10px;
+      text-align: center;
+
+      h2, h3, p {
+          flex: 2;/* Lägg till styling för texten inuti "card" här om det behövs */
+      }
+
+      button {
+          border-radius: 2.6rem;
+          background-color: $primary-color;
+          color: $text-color;
+          padding: .6rem;
+
+          &:hover {
+              background-color: darken($primary-color, 10%);
+              filter: hue-rotate(266deg);
+          }
+      }
+  }
+
+
   
     h2 {
       color: $user-titel-text;
