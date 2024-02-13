@@ -11,9 +11,9 @@ export interface ApiResponse {
     notes: Note[];
 }
 
-export interface ApiError {
-    message: string;
-    status: number;
+export interface ApiError <T, D> {
+    message: T;
+    status: D;
   }
 
 
