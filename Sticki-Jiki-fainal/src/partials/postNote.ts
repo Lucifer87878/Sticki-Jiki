@@ -14,27 +14,23 @@ export async function postNewNote() {
   
     submitButton.addEventListener("click", async (e) => {
       e.preventDefault();
-  
       const newNote = {
         username: userInput.value,
         title: titleInput.value,
         note: noteInput.value,
       } as Note;
-  
       try {
         await axios.post(`${BaseUrl}/api/notes`, newNote, {
           headers: {
             "Content-Type": "application/json",
           },
         });
-  
         // Immediately fetch and display notes after adding a new note
         getNotes(newNote.username);
       } catch (error) {
         console.error("Failed to post note:", error);
       }
     });
-  
     // Event listener to show notes
     showNotesButton.addEventListener("click", (e) => {
       e.preventDefault();
